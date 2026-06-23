@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-crema text-carbon font-poppins selection:bg-primary/20 selection:text-primary overflow-x-hidden;
+  }
+}
+
+/* Custom animations and visual scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FDF8F2;
+}
+::-webkit-scrollbar-thumb {
+  background: #2EC4B6;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #25A296;
+}
