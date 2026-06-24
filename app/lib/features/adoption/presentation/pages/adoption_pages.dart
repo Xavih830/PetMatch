@@ -344,25 +344,38 @@ class MyAdoptionsScreen extends ConsumerWidget {
     // Filtrar solicitudes hechas por el usuario adoptante
     final myReqs = adoptionsState.requests.where((r) => r.applicantId == currentUser?.id).toList();
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.surface,
-        title: const Text('Mis Adopciones'),
-      ),
-      body: adoptionsState.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : myReqs.isEmpty
-              ? const Center(child: Text('Aún no has solicitado ninguna adopción.'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: myReqs.length,
-                  itemBuilder: (context, index) {
-                    final req = myReqs[index];
-                    return _buildAdoptionCard(context, req, currentUser?.id ?? '');
-                  },
+    return PopScope(
+      canPop: Navigator.canPop(context),
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        context.go(AppRoutes.adoptanteHome);
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.surface,
+          title: const Text('Mis Adopciones'),
+          leading: Navigator.canPop(context)
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => context.go(AppRoutes.adoptanteHome),
                 ),
+        ),
+        body: adoptionsState.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : myReqs.isEmpty
+                ? const Center(child: Text('Aún no has solicitado ninguna adopción.'))
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: myReqs.length,
+                    itemBuilder: (context, index) {
+                      final req = myReqs[index];
+                      return _buildAdoptionCard(context, req, currentUser?.id ?? '');
+                    },
+                  ),
+      ),
     );
   }
 
@@ -459,58 +472,71 @@ class CareAlertsScreen extends ConsumerWidget {
     final adoptionsState = ref.watch(adoptionProvider);
     final alerts = adoptionsState.careAlerts;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.surface,
-        title: const Text('Recordatorios de Cuidado'),
-      ),
-      body: adoptionsState.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : alerts.isEmpty
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: Text(
-                      'No tienes recordatorios activos. Estos se generan automáticamente cuando aprueban una de tus solicitudes de adopción.',
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text('Calendario de Vacunación y Control', style: AppTextStyles.h2),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: alerts.length,
-                        itemBuilder: (context, index) {
-                          final alert = alerts[index];
-                          return Card(
-                            color: AppColors.surface,
-                            margin: const EdgeInsets.only(bottom: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            child: ListTile(
-                              leading: const Icon(Icons.event_note, color: AppColors.primary),
-                              title: Text(alert.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Text('${alert.description}\nFecha sugerida: ${alert.date.day}/${alert.date.month}/${alert.date.year}', style: const TextStyle(fontSize: 12)),
-                              isThreeLine: true,
-                              trailing: Icon(
-                                alert.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-                                color: alert.isCompleted ? AppColors.success : Colors.grey,
-                              ),
-                            ),
-                          );
-                        },
+    return PopScope(
+      canPop: Navigator.canPop(context),
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        context.go(AppRoutes.adoptanteHome);
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.surface,
+          title: const Text('Recordatorios de Cuidado'),
+          leading: Navigator.canPop(context)
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => context.go(AppRoutes.adoptanteHome),
+                ),
+        ),
+        body: adoptionsState.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : alerts.isEmpty
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: Text(
+                        'No tienes recordatorios activos. Estos se generan automáticamente cuando aprueban una de tus solicitudes de adopción.',
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                  ],
-                ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('Calendario de Vacunación y Control', style: AppTextStyles.h2),
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: alerts.length,
+                          itemBuilder: (context, index) {
+                            final alert = alerts[index];
+                            return Card(
+                              color: AppColors.surface,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              child: ListTile(
+                                leading: const Icon(Icons.event_note, color: AppColors.primary),
+                                title: Text(alert.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: Text('${alert.description}\nFecha sugerida: ${alert.date.day}/${alert.date.month}/${alert.date.year}', style: const TextStyle(fontSize: 12)),
+                                isThreeLine: true,
+                                trailing: Icon(
+                                  alert.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+                                  color: alert.isCompleted ? AppColors.success : Colors.grey,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+      ),
     );
   }
 }

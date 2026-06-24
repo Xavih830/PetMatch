@@ -175,7 +175,13 @@ class _DiscoverPetsScreenState extends ConsumerState<DiscoverPetsScreen> {
             ),
           ),
           ElevatedButton(
-            onPressed: () => context.push(AppRoutes.questionnaire),
+            onPressed: () {
+              if (q == null) {
+                context.push(AppRoutes.questionnaire);
+              } else {
+                context.push(AppRoutes.matchingResults);
+              }
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
               foregroundColor: AppColors.surface,
