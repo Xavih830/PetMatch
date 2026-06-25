@@ -1,0 +1,67 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 1. Setup Java for Flutter build
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 2. Setup Flutter Action
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true
+
+      # 3. Build Flutter Web Application
+      - name: Build Flutter Web
+        run: |
+          cd app
+          flutter pub get
+          flutter build web --release --base-href "/PetMatch/app/"
+
+      # 4. Setup Node.js for Landing Page
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: landing/package-lock.json
+
+      # 5. Build Landing Page React Application
+      - name: Build Landing Page
+        run: |
+          cd landing
+          npm ci
+          npm run build
+
+      # 6. Merge Builds (Move compiled Web App to a subdirectory in the Landing dist)
+      - name: Merge Builds
+        run: |
+          mkdir -p landing/dist/app
+          cp -r app/build/web/* landing/dist/app/
+
+      # 7. Deploy merged output directory to gh-pages branch
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./landing/dist

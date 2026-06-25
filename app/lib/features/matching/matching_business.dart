@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/data/local_data_store.dart';
 import '../../core/providers/core_providers.dart';
+import '../auth/presentation/providers/auth_provider.dart';
 import 'domain/entities/pet_entity.dart';
 import 'domain/entities/foundation_entity.dart';
 
@@ -183,9 +184,11 @@ class MatchingNotifier extends StateNotifier<MatchingState> {
   Future<void> loadMascotas() async {
     state = state.copyWith(isLoading: true);
     
-    // Cargar cuestionario si existe en SharedPreferences
+    final user = _ref.read(authProvider).user;
     final prefs = _ref.read(sharedPreferencesProvider);
-    final qStr = prefs.getString('matching_questionnaire');
+    
+    final key = user != null ? 'matching_questionnaire_${user.id}' : 'matching_questionnaire';
+    final qStr = prefs.getString(key);
     MatchingQuestionnaire? questionnaire;
     if (qStr != null) {
       questionnaire = MatchingQuestionnaire.fromMap(json.decode(qStr));
@@ -213,20 +216,25 @@ class MatchingNotifier extends StateNotifier<MatchingState> {
 
   Future<void> saveQuestionnaire(MatchingQuestionnaire q) async {
     state = state.copyWith(isLoading: true);
+    final user = _ref.read(authProvider).user;
     final prefs = _ref.read(sharedPreferencesProvider);
-    await prefs.setString('matching_questionnaire', json.encode(q.toMap()));
+    final key = user != null ? 'matching_questionnaire_${user.id}' : 'matching_questionnaire';
+    await prefs.setString(key, json.encode(q.toMap()));
     await loadMascotas();
   }
 
   Future<void> clearQuestionnaire() async {
     state = state.copyWith(isLoading: true);
+    final user = _ref.read(authProvider).user;
     final prefs = _ref.read(sharedPreferencesProvider);
-    await prefs.remove('matching_questionnaire');
+    final key = user != null ? 'matching_questionnaire_${user.id}' : 'matching_questionnaire';
+    await prefs.remove(key);
     await loadMascotas();
   }
 }
 
 final matchingProvider = StateNotifierProvider<MatchingNotifier, MatchingState>((ref) {
   final repo = ref.watch(petRepositoryProvider);
+  ref.watch(authProvider); // Recrea el notifier cuando cambia el estado de autenticación
   return MatchingNotifier(repo, ref);
 });

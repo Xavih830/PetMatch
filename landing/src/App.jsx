@@ -110,6 +110,7 @@ export default function App() {
             <a href="#roles" className="text-carbon hover:text-primary transition-colors">Roles</a>
             <a href="#caracteristicas" className="text-carbon hover:text-primary transition-colors">Características</a>
             <a href="#descarga" className="text-carbon hover:text-primary transition-colors">Descarga</a>
+            <a href="/PetMatch/app/" className="text-secondary font-bold hover:text-[#e1520b] transition-colors">Probar Versión Web</a>
           </div>
 
           <a 
@@ -148,18 +149,18 @@ export default function App() {
             </p>
             <div className="flex flex-wrap gap-4">
               <a 
-                href="#descarga"
-                className="bg-primary hover:bg-primary-dark text-white font-bold px-8 py-4 rounded-full shadow-xl shadow-primary/30 flex items-center gap-3 transition-all transform hover:-translate-y-1"
+                href="/PetMatch/app/"
+                className="bg-secondary hover:bg-[#e1520b] text-white font-bold px-8 py-4 rounded-full shadow-xl shadow-secondary/30 flex items-center gap-3 transition-all transform hover:-translate-y-1"
               >
-                <Download size={20} />
-                <span>Instalar PetMatch</span>
+                <Smartphone size={20} />
+                <span>Probar Versión Web</span>
               </a>
               <a 
-                href="#funcionamiento"
-                className="border-2 border-secondary text-secondary hover:bg-secondary hover:text-white font-bold px-8 py-4 rounded-full flex items-center gap-2 transition-all transform hover:-translate-y-1"
+                href="#descarga"
+                className="border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold px-8 py-4 rounded-full flex items-center gap-2 transition-all transform hover:-translate-y-1"
               >
-                <span>Saber más</span>
-                <ChevronRight size={20} />
+                <span>Descargar APK</span>
+                <Download size={20} />
               </a>
             </div>
           </motion.div>
