@@ -15,6 +15,113 @@ import '../../volunteer_business.dart';
 class ExploreCampaignsScreen extends ConsumerWidget {
   const ExploreCampaignsScreen({super.key});
 
+  void _showNotificationsDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        final notifications = [
+          {
+            'title': '¡Inscripción Exitosa!',
+            'desc': 'Te has registrado correctamente para la campaña de paseo en Samanes.',
+            'time': 'Hace 2 min',
+            'read': false,
+          },
+          {
+            'title': 'Recordatorio de Actividad',
+            'desc': 'Tu voluntariado de baño de cachorros inicia mañana a las 09:00 AM.',
+            'time': 'Hace 1 hora',
+            'read': false,
+          },
+          {
+            'title': 'Certificado Disponible',
+            'desc': 'Ya puedes descargar tu certificado de participación por acumular 12 horas.',
+            'time': 'Hace 1 día',
+            'read': true,
+          },
+          {
+            'title': 'Nueva Campaña Publicada',
+            'desc': 'Fundación Huellitas de Amor publicó una nueva feria de adopción en Urdesa.',
+            'time': 'Hace 2 días',
+            'read': true,
+          }
+        ];
+
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Notificaciones', style: AppTextStyles.h2),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cerrar'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: notifications.length,
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemBuilder: (context, index) {
+                    final notif = notifications[index];
+                    final isRead = notif['read'] as bool;
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: isRead ? Colors.grey.shade200 : AppColors.secondary.withOpacity(0.15),
+                        child: Icon(
+                          isRead ? Icons.notifications_none : Icons.notifications_active,
+                          color: isRead ? Colors.grey : AppColors.secondary,
+                        ),
+                      ),
+                      title: Text(
+                        notif['title'] as String,
+                        style: TextStyle(
+                          fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(notif['desc'] as String, style: const TextStyle(fontSize: 12)),
+                          const SizedBox(height: 4),
+                          Text(notif['time'] as String, style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userId = ref.watch(authProvider).user?.id ?? 'u3';
@@ -28,6 +135,10 @@ class ExploreCampaignsScreen extends ConsumerWidget {
         foregroundColor: AppColors.surface,
         title: const Text('Voluntariado', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_active),
+            onPressed: () => _showNotificationsDialog(context),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {

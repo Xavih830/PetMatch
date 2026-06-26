@@ -357,6 +357,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('¿No tienes cuenta? ', style: TextStyle(color: AppColors.textSecondary)),
+                      TextButton(
+                        onPressed: () => context.go(AppRoutes.register),
+                        child: const Text(
+                          'Regístrate aquí',
+                          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

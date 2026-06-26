@@ -61,6 +61,22 @@ class LocalDataStore {
       ),
     ];
 
+    // Cargar usuarios registrados de SharedPreferences
+    final customUsersStr = _prefs.getString('store_custom_users');
+    if (customUsersStr != null) {
+      try {
+        final List decoded = json.decode(customUsersStr);
+        final customUsers = decoded.map((e) => UserEntity(
+          id: e['id'],
+          name: e['name'],
+          email: e['email'],
+          role: e['role'],
+          password: e['password'],
+        )).toList();
+        users.addAll(customUsers);
+      } catch (_) {}
+    }
+
     // 2. Fundaciones
     final fStr = _prefs.getString('store_foundations');
     if (fStr != null) {
@@ -742,5 +758,33 @@ class LocalDataStore {
     senderEmail = email;
     _prefs.setDouble('store_commission_rate', rate);
     _prefs.setString('store_sender_email', email);
+  }
+
+  void addUser(UserEntity user) {
+    // Evitar duplicados en memoria
+    if (!users.any((u) => u.email == user.email)) {
+      users.add(user);
+    }
+    
+    // Guardar en SharedPreferences
+    final customUsersStr = _prefs.getString('store_custom_users');
+    List customList = [];
+    if (customUsersStr != null) {
+      try {
+        customList = json.decode(customUsersStr);
+      } catch (_) {}
+    }
+    
+    // Evitar guardar duplicado por correo
+    if (!customList.any((u) => u['email'] == user.email)) {
+      customList.add({
+        'id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'role': user.role,
+        'password': user.password,
+      });
+      _prefs.setString('store_custom_users', json.encode(customList));
+    }
   }
 }

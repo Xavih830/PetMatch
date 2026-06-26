@@ -5,6 +5,7 @@ import 'core/constants/app_colors.dart';
 import 'core/constants/app_routes.dart';
 import 'core/constants/app_text_styles.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'features/auth/presentation/pages/register_page.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/matching/presentation/pages/adoptante_pages.dart';
 import 'features/adoption/presentation/pages/adoption_pages.dart';
@@ -23,10 +24,11 @@ final _routerProvider = Provider<GoRouter>((ref) {
       final isLoggedIn = authState.isAuthenticated;
       final isLoggingIn = state.matchedLocation == AppRoutes.login;
       final isSplashing = state.matchedLocation == AppRoutes.splash;
+      final isRegistering = state.matchedLocation == AppRoutes.register;
 
-      // Si no ha iniciado sesión y no está en login/splash, forzar login
+      // Si no ha iniciado sesión y no está en login/splash/register, forzar login
       if (!isLoggedIn) {
-        if (!isLoggingIn && !isSplashing) return AppRoutes.login;
+        if (!isLoggingIn && !isSplashing && !isRegistering) return AppRoutes.login;
         return null;
       }
 
@@ -65,6 +67,10 @@ final _routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterScreen(),
       ),
       
       // Adoptante

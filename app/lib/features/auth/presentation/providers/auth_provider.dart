@@ -6,6 +6,7 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/auth_usecases.dart';
+import '../../../volunteer/domain/entities/volunteer_record_entity.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final store = ref.watch(localDataStoreProvider);
@@ -111,6 +112,66 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     await _logoutUseCase.call();
     state = AuthState(isAuthenticated: false);
+  }
+
+  Future<bool> register({
+    required String name,
+    required String email,
+    required String password,
+    required String role,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final newUser = UserEntity(
+        id: 'u_${DateTime.now().millisecondsSinceEpoch}',
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      );
+      _store.addUser(newUser);
+      
+      // Si el rol es voluntario, crear un registro de voluntario vacío
+      if (role == 'voluntario') {
+        _store.volunteerRecords.add(VolunteerRecordEntity(
+          id: 'v_${DateTime.now().millisecondsSinceEpoch}',
+          userId: newUser.id,
+          name: newUser.name,
+          campaignsCompleted: 0,
+          hoursAccumulated: 0,
+          badges: const [],
+          skills: const [],
+          availability: 'No definida',
+          area: 'Guayaquil',
+        ));
+        // Guardar records
+        final list = _store.volunteerRecords.map((e) => {
+          'id': e.id,
+          'userId': e.userId,
+          'name': e.name,
+          'campaignsCompleted': e.campaignsCompleted,
+          'hoursAccumulated': e.hoursAccumulated,
+          'badges': e.badges,
+          'skills': e.skills,
+          'availability': e.availability,
+          'area': e.area,
+        }).toList();
+        await _sessionService.saveSession(userId: newUser.id, userName: newUser.name, userRole: newUser.role);
+      }
+      
+      // Autologin
+      await _sessionService.saveSession(
+        userId: newUser.id,
+        userName: newUser.name,
+        userRole: newUser.role,
+      );
+      
+      state = AuthState(isAuthenticated: true, user: newUser);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: 'Error al crear cuenta: $e');
+      return false;
+    }
   }
 }
 

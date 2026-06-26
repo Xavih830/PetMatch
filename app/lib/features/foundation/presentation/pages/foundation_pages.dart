@@ -244,24 +244,28 @@ class _PetManagementScreenState extends ConsumerState<PetManagementScreen> {
                           color: AppColors.surface,
                           margin: const EdgeInsets.only(right: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          child: Container(
-                            width: 140,
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor: pet.species == 'perro' ? Colors.orange.shade100 : Colors.teal.shade100,
-                                  child: Icon(
-                                    Icons.pets,
-                                    color: pet.species == 'perro' ? AppColors.primary : AppColors.secondary,
+                          child: InkWell(
+                            onTap: () => _showPetDetailSheet(context, pet),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              width: 140,
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor: pet.species == 'perro' ? Colors.orange.shade100 : Colors.teal.shade100,
+                                    child: Icon(
+                                      Icons.pets,
+                                      color: pet.species == 'perro' ? AppColors.primary : AppColors.secondary,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(pet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                Text(pet.breed, style: AppTextStyles.subtitle, overflow: TextOverflow.ellipsis),
-                              ],
+                                  const SizedBox(height: 8),
+                                  Text(pet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Text(pet.breed, style: AppTextStyles.subtitle, overflow: TextOverflow.ellipsis),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -373,6 +377,208 @@ class _PetManagementScreenState extends ConsumerState<PetManagementScreen> {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  void _showPetDetailSheet(BuildContext context, PetEntity pet) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.background,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Ficha de Animal',
+                        style: AppTextStyles.h2.copyWith(fontSize: 22),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: CircleAvatar(
+                      radius: 45,
+                      backgroundColor: pet.species == 'perro' ? Colors.orange.shade100 : Colors.teal.shade100,
+                      child: Icon(
+                        Icons.pets,
+                        size: 50,
+                        color: pet.species == 'perro' ? AppColors.primary : AppColors.secondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Text(
+                      pet.name,
+                      style: AppTextStyles.h1.copyWith(fontSize: 22, color: AppColors.textPrimary),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      '${pet.breed} • ${pet.gender == 'macho' ? 'Macho' : 'Hembra'}',
+                      style: AppTextStyles.subtitle,
+                    ),
+                  ),
+                  const Divider(height: 32),
+                  const Text('Detalles Generales', style: AppTextStyles.h3),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildQuickInfo(Icons.calendar_today, 'Edad', '${pet.age} años'),
+                      _buildQuickInfo(Icons.monitor_weight, 'Peso', '${pet.weight} kg'),
+                      _buildQuickInfo(Icons.child_care, 'Niños', pet.aptaParaNinos ? 'Apta' : 'No apta'),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  const Text('Temperamento', style: AppTextStyles.h3),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: pet.temperament.split(',').map((t) {
+                      return Chip(
+                        label: Text(t.trim()),
+                        backgroundColor: AppColors.surface,
+                        side: const BorderSide(color: Colors.black12),
+                      );
+                    }).toList(),
+                  ),
+                  const Divider(height: 32),
+                  // HISTORIAL MÉDICO
+                  Row(
+                    children: [
+                      const Icon(Icons.healing, color: AppColors.primary, size: 24),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Historial Médico',
+                        style: AppTextStyles.h2.copyWith(fontSize: 18),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Card(
+                    color: AppColors.surface,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(color: Colors.black12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Estado de salud general: ${pet.healthStatus}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                          const Divider(height: 20),
+                          const Text(
+                            'Registro de Vacunas y Desparasitaciones:',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                          const SizedBox(height: 8),
+                          ...pet.vaccines.map((v) => Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: AppColors.success, size: 16),
+                                const SizedBox(width: 8),
+                                Text(v, style: const TextStyle(fontSize: 12)),
+                              ],
+                            ),
+                          )),
+                          const Divider(height: 20),
+                          const Text(
+                            'Consultas Veterinarias Recientes:',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildMedicalEvent('20/05/2026', 'Chequeo General', 'Paciente sano, peso ideal, pelaje brillante.'),
+                          _buildMedicalEvent('15/04/2026', 'Vacunación Anual', 'Refuerzo de quíntuple y antirrábica aplicado sin efectos adversos.'),
+                          _buildMedicalEvent('10/03/2026', 'Desparasitación', 'Tratamiento oral completado.'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildQuickInfo(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: AppColors.primary, size: 20),
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+          Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMedicalEvent(String date, String title, String description) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(date, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.secondary)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                Text(description, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
@@ -718,7 +924,17 @@ class _CampaignManagementScreenState extends ConsumerState<CampaignManagementScr
               child: ListTile(
                 title: Text(camp.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text('${camp.location} • Cupo: ${camp.enrolledVolunteersCount} / ${camp.capacity}'),
-                trailing: const Icon(Icons.people),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.visibility, color: AppColors.secondary),
+                      tooltip: 'Vista Previa',
+                      onPressed: () => _showCampaignPreviewSheet(context, camp),
+                    ),
+                    const Icon(Icons.chevron_right),
+                  ],
+                ),
                 onTap: () => context.push(AppRoutes.campaignVolunteers.replaceAll(':id', camp.id)),
               ),
             )),
@@ -768,15 +984,50 @@ class _CampaignManagementScreenState extends ConsumerState<CampaignManagementScr
                     validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _addCampaign,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.surface,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      minimumSize: const Size(double.infinity, 50),
-                    ),
-                    child: const Text('Publicar Campaña', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              final dummyCamp = CampaignEntity(
+                                id: 'dummy',
+                                title: _titleController.text.trim(),
+                                description: _descController.text.trim(),
+                                type: _selectedType,
+                                date: DateTime.now().add(const Duration(days: 3)),
+                                location: _locationController.text.trim(),
+                                capacity: int.parse(_capacityController.text.trim()),
+                                enrolledVolunteersCount: 0,
+                                skillsRequired: const ['Paciencia', 'Amor por los animales'],
+                                foundationId: 'f1',
+                              );
+                              _showCampaignPreviewSheet(context, dummyCamp);
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.secondary),
+                            foregroundColor: AppColors.secondary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('Vista Previa', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _addCampaign,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: AppColors.surface,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('Publicar', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -784,6 +1035,124 @@ class _CampaignManagementScreenState extends ConsumerState<CampaignManagementScr
           ],
         ),
       ),
+    );
+  }
+
+  void _showCampaignPreviewSheet(BuildContext context, CampaignEntity camp) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.background,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Vista Previa Publicada (Móvil)',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.secondary),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: AppColors.secondary.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
+                    child: Text(camp.type.toUpperCase(), style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, fontSize: 10)),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(camp.title, style: AppTextStyles.h1.copyWith(fontSize: 24)),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, color: AppColors.textSecondary, size: 18),
+                      const SizedBox(width: 6),
+                      Text(camp.location, style: const TextStyle(color: AppColors.textSecondary)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.date_range, color: AppColors.textSecondary, size: 18),
+                      const SizedBox(width: 6),
+                      Text('${camp.date.day}/${camp.date.month}/${camp.date.year}', style: const TextStyle(color: AppColors.textSecondary)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.people_outline, color: AppColors.textSecondary, size: 18),
+                      const SizedBox(width: 6),
+                      Text('Cupos: ${camp.enrolledVolunteersCount} / ${camp.capacity} inscritos', style: const TextStyle(color: AppColors.textSecondary)),
+                    ],
+                  ),
+                  const Divider(height: 30),
+                  const Text('Descripción de la Actividad', style: AppTextStyles.h3),
+                  const SizedBox(height: 8),
+                  Text(camp.description, style: const TextStyle(height: 1.5, color: AppColors.textPrimary)),
+                  const SizedBox(height: 24),
+                  const Text('Habilidades Requeridas', style: AppTextStyles.h3),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: camp.skillsRequired.map((skill) {
+                      return Chip(
+                        label: Text(skill),
+                        backgroundColor: AppColors.surface,
+                        side: const BorderSide(color: Colors.black12),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 30),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.surface,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Text('Inscribirse en Campaña (Vista Voluntario)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
